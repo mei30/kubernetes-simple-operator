@@ -1,10 +1,9 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: visitors-backend
 spec:
-  replicas: 1
+  replicas: {{ .Values.backend.size }}
   selector:
     matchLabels:
       app: visitors
@@ -17,14 +16,14 @@ spec:
     spec:
       containers:
         - name: visitors-backend
-          image: "jdob/visitors-service"
+          image: "jdob/visitors-service:1.0.0"
           imagePullPolicy: Always
           ports:
             - name: visitors
               containerPort: 8000
           env:
             - name: MYSQL_DATABASE
-              value: visitors_db
+              value: visitors
             - name: MYSQL_SERVICE_HOST
               value: mysql-service
             - name: MYSQL_USERNAME
@@ -37,21 +36,3 @@ spec:
                 secretKeyRef:
                   name: mysql-auth
                   key: password
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: visitors-backend-service
-  labels:
-    app: visitors
-    tier: backend
-spec:
-  type: NodePort
-  ports:
-    - port: 8000
-      targetPort: 8000
-      nodePort: 30685
-      protocol: TCP
-  selector:
-    app: visitors
-    tier: backend
